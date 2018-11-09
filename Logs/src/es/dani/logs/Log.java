@@ -96,6 +96,7 @@ public class Log {
 		Charset charset = Charset.forName("UTF-8");
 		Path pEscritura = Paths.get(escritura);
 		Date fecha = new Date();
+		escriureSegonsNivell();
 		try (BufferedWriter writer = Files.newBufferedWriter(pEscritura, charset,StandardOpenOption.APPEND)) {
 	        switch (nivell) {
 	            case 0:  textLog = "[DEBUG] ";
@@ -107,7 +108,24 @@ public class Log {
 	            case 3:  textLog = "[ERROR] ";
 	                     break;
 	        }
-	        writer.write(textLog+df.format(fecha)+"\n");
+		switch (nivell) {
+	            case 0:  if(writeDebug || writeInfo || writeWarning || writeError){
+			    	writer.write(textLog+df.format(fecha)+"\n");
+		    	     }
+	                     break;
+	            case 1:  if(writeInfo || writeWarning || writeError){
+			    	writer.write(textLog+df.format(fecha)+"\n");
+		    	     }
+	                     break;
+	            case 2:  if(writeWarning || writeError){
+			    	writer.write(textLog+df.format(fecha)+"\n");
+		    	     }
+	                     break;
+	            case 3:  if(writeError){
+			    	writer.write(textLog+df.format(fecha)+"\n");
+		    	     }
+	                     break;
+	        }	
 		} catch (IOException x) {
 		    System.err.format("IOException: %s%n", x);
 		}
