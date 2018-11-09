@@ -27,7 +27,11 @@ public class Log {
 	private String fitxerU = "";
 	private String extensio = ".txt";
 	private SimpleDateFormat df = new SimpleDateFormat("dd/M/yyyy hh:mm:ss"); 
-	
+	private boolean writeDebug = false;
+	private boolean writeInfo = false;
+	private boolean writeWarning = false;
+	private boolean writeError = false;
+		
 	public Log() {
 		crearDirectori();
 		creacioFitxer();
@@ -49,6 +53,19 @@ public class Log {
 			nivell= 2;
 		else 
 			nivell = nivel;
+	}
+	
+	public void escriureSegonsNivell(){
+		switch (nivell) {
+	            case 0:  writeDebug =true;writeInfo = true;writeWarning=true;writeError=true;
+	                     break;
+	            case 1:  writeInfo = true;writeWarning=true;writeError=true;
+	                     break;
+	            case 2:  writeWarning=true;writeError=true;
+	                     break;
+	            case 3:  writeError=true;
+	                     break;
+	        }	
 	}
 	
 	public void debug(String missatge) {
