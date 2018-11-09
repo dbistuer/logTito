@@ -17,7 +17,10 @@ public class Log {
 	public static final int INFO = 1;
 	public static final int WARNING = 2;
 	public static final int ERROR = 3;
+	private static final String SEPARADOR = "\' || ";
+	private String capcalera;
 	private int nivell;
+	private int nivellMissatge;
 	private String path = System.getProperty("user.home")+"//log";
 	private File directori = new File(path);
 	private File fitxerLog;
@@ -27,23 +30,20 @@ public class Log {
 	private String fitxerU = "";
 	private String extensio = ".txt";
 	private SimpleDateFormat df = new SimpleDateFormat("dd/M/yyyy hh:mm:ss"); 
-	private boolean writeDebug = false;
-	private boolean writeInfo = false;
-	private boolean writeWarning = false;
-	private boolean writeError = false;
+
 		
 	public Log() {
 		crearDirectori();
 		creacioFitxer();
 		nivell=WARNING;
-		escriureFitxer();
+		escriureCapcalera();
 	}
-	
+
 	public Log(String fitxerUsuari) {
 		crearDirectori();
 		creacioFitxer(fitxerUsuari);
 		nivell=WARNING;
-		escriureFitxer();
+		escriureCapcalera();
 	}
 	
 	public Log(String fitxerUsuari,int nivel) {
@@ -53,36 +53,42 @@ public class Log {
 			nivell= 2;
 		else 
 			nivell = nivel;
+		escriureCapcalera();
 	}
 	
-	public void escriureSegonsNivell(){
-		switch (nivell) {
-	            case 0:  writeDebug =true;writeInfo = true;writeWarning=true;writeError=true;
-	                     break;
-	            case 1:  writeInfo = true;writeWarning=true;writeError=true;
-	                     break;
-	            case 2:  writeWarning=true;writeError=true;
-	                     break;
-	            case 3:  writeError=true;
-	                     break;
-	        }	
+	private void escriureCapcalera() {
+		Charset charset = Charset.forName("UTF-8");
+		Path pEscritura = Paths.get(escritura);
+		capcalera = "\n		EXECUCIO \n---------------------------------------------------------------\n\n";
+		try (BufferedWriter writer = Files.newBufferedWriter(pEscritura, charset,StandardOpenOption.APPEND)) {
+			writer.write(capcalera);              
+		} catch (IOException x) {
+		    System.err.format("IOException: %s%n", x);
+		}	
 	}
 	
 	public void debug(String missatge) {
-		nivell = 0;
-		escriureFitxer();
+		nivellMissatge = 0;
+		textLog = "[DEBUG] --> \'";
+		escriureFitxer(textLog +missatge);
 	}
+	
 	public void info(String missatge) {
-		nivell = 1;
-		escriureFitxer();
+		nivellMissatge = 1;
+		textLog = "[INFO] --> \'";
+		escriureFitxer(textLog +missatge);
 	}
+	
 	public void warning(String missatge) {
-		nivell = 2;
-		escriureFitxer();
+		nivellMissatge = 2;
+		textLog = "[WARNING] --> \'";
+		escriureFitxer(textLog +missatge);
 	}
+	
 	public void error(String missatge) {
-		nivell = 3;
-		escriureFitxer();
+		nivellMissatge = 3;
+		textLog = "[ERROR] --> \'";
+		escriureFitxer(textLog +missatge);
 	}
 	
 	public void setNivell(int nivel) {
@@ -92,40 +98,15 @@ public class Log {
 			nivell = nivel;
 	}
 	
-	private void escriureFitxer() {
+	private void escriureFitxer(String missatge) {
 		Charset charset = Charset.forName("UTF-8");
 		Path pEscritura = Paths.get(escritura);
 		Date fecha = new Date();
-		escriureSegonsNivell();
 		try (BufferedWriter writer = Files.newBufferedWriter(pEscritura, charset,StandardOpenOption.APPEND)) {
-	        switch (nivell) {
-	            case 0:  textLog = "[DEBUG] ";
-	                     break;
-	            case 1:  textLog = "[INFO] ";
-	                     break;
-	            case 2:  textLog = "[WARNING] ";
-	                     break;
-	            case 3:  textLog = "[ERROR] ";
-	                     break;
-	        }
-		switch (nivell) {
-	            case 0:  if(writeDebug || writeInfo || writeWarning || writeError){
-			    	writer.write(textLog+df.format(fecha)+"\n");
-		    	     }
-	                     break;
-	            case 1:  if(writeInfo || writeWarning || writeError){
-			    	writer.write(textLog+df.format(fecha)+"\n");
-		    	     }
-	                     break;
-	            case 2:  if(writeWarning || writeError){
-			    	writer.write(textLog+df.format(fecha)+"\n");
-		    	     }
-	                     break;
-	            case 3:  if(writeError){
-			    	writer.write(textLog+df.format(fecha)+"\n");
-		    	     }
-	                     break;
-	        }	
+	        if(nivellMissatge >= nivell){
+	        	writer.write(missatge+SEPARADOR+df.format(fecha)+"\n");
+			}
+	                    
 		} catch (IOException x) {
 		    System.err.format("IOException: %s%n", x);
 		}
@@ -210,4 +191,4 @@ public class Log {
 
 }
 
-//nivell + missatge +data hora
+
